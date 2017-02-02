@@ -1,7 +1,5 @@
 import webapp2
-import cgi
 import re
-
 
 
 # html boilerplate for the top of every page
@@ -30,50 +28,48 @@ class Index (webapp2.RequestHandler):
     #Handles requests coming in to '/' (the root of our site)
     def get(self):
         # a form for adding new movies
-        username_form =
+        username_form ="""
         <form  method="post">
             <label>
                 Username
                 <input type="text" name="username"/>
             </label>
         </form>
-
-        username_form =
+        """
+        password_form ="""
         <form  method="post">
             <label>
                 Password
                 <input type="password" name="password"/>
             </label>
         </form>
-
-        verify_password_form =
+        """
+        verify_password_form ="""
         <form  method="post">
             <label>
                 Verify Password
                 <input type="password" name="verify"/>
             </label>
         </form>
-
-        email_form =
+        """
+        email_form ="""
         <form  method="post">
             <label>
                 Email (optional)
                 <input type="text" name="email">
             </label>
         </form>
-
+        """
 
         # if we have an error, make a <p> to display it
         error = self.request.get("error")
-        error_element = "<p class='error'>" + error + "</p>" if error else ""
+        error_element = "<p class='error'>" + error + "</p>"
 
         # combine all the pieces to build the content of our response
         main_content = username_form +  password_form + verify_password_form +
         email_form + error_element
         content = page_header + main_content + page_footer
         self.response.write(content)
-
-
 
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 def valid_username(username):
@@ -145,5 +141,5 @@ class Welcome (webapp2.RequestHandler):
 app = webapp2.WSGIApplication([
     ('/', Index),
     ('/signup', Signup),
-    ('/welcom', Welcome)
+    ('/welcome', Welcome)
 ], debug=True)
