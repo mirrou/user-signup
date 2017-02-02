@@ -1,76 +1,6 @@
 import webapp2
 import re
 
-
-# html boilerplate for the top of every page
-page_header =
-<!DOCTYPE html>
-<html>
-<head>
-    <title>User-Signup</title>
-    <style type="text/css">
-        .error {
-        color: red;
-        }
-    </style>
-</head>
-<body>
-    <h2>Signup</h2>
-
-
-# html boilerplate for the bottom of every page
-page_footer =
-</body>
-</html>
-
-
-class Index (webapp2.RequestHandler):
-    #Handles requests coming in to '/' (the root of our site)
-    def get(self):
-        # a form for adding new movies
-        username_form ="""
-        <form  method="post">
-            <label>
-                Username
-                <input type="text" name="username"/>
-            </label>
-        </form>
-        """
-        password_form ="""
-        <form  method="post">
-            <label>
-                Password
-                <input type="password" name="password"/>
-            </label>
-        </form>
-        """
-        verify_password_form ="""
-        <form  method="post">
-            <label>
-                Verify Password
-                <input type="password" name="verify"/>
-            </label>
-        </form>
-        """
-        email_form ="""
-        <form  method="post">
-            <label>
-                Email (optional)
-                <input type="text" name="email">
-            </label>
-        </form>
-        """
-
-        # if we have an error, make a <p> to display it
-        error = self.request.get("error")
-        error_element = "<p class='error'>" + error + "</p>"
-
-        # combine all the pieces to build the content of our response
-        main_content = username_form +  password_form + verify_password_form +
-        email_form + error_element
-        content = page_header + main_content + page_footer
-        self.response.write(content)
-
 USER_RE = re.compile(r"^[a-zA-Z0-9_-]{3,20}$")
 def valid_username(username):
     return username and USER_RE.match(username)
@@ -83,63 +13,188 @@ EMAIL_RE  = re.compile(r'^[\S]+@[\S]+\.[\S]+$')
 def valid_email(email):
     return not email or EMAIL_RE.match(email)
 
+# html boilerplate for the top of every page
+page_header = """
+<!DOCTYPE html>
+<html>
+<head>
+    <title>User-Signup</title>
+    <style type="text/css">
+        .error {color: red;}
+    </style>
+</head>
+<body>
+"""
+title = """
+<h1>Signup</h1>
+"""
+# html boilerplate for the bottom of every page
+page_footer ="""
+</body>
+</html>
+"""
 
+page_main = """
+<form action="/signup" method="post">
+  <table>
+    <tr>
+      <td class="label">
+        Username
+      </td>
+      <td>
+        <input type="text" name="username" value="{0}">
+      </td>
+      <td class="error">
+        {2}
+      </td>
+    </tr>
 
-class Signup (webapp2.RequestHandler):
-    # Handles requests coming in to '/signup'
+    <tr>
+      <td class="label">
+        Password
+      </td>
+      <td>
+        <input type="password" name="password" value="">
+      </td>
+      <td class="error">
+        {3}
+      </td>
+    </tr>
 
+    <tr>
+      <td class="label">
+        Verify Password
+      </td>
+      <td>
+        <input type="password" name="verify" value="">
+      </td>
+      <td class="error">
+        {4}
+      </td>
+    </tr>
+
+    <tr>
+      <td class="label">
+        Email (optional)
+      </td>
+      <td>
+        <input type="text" name="email" value="{1}">
+      </td>
+      <td class="error">
+        {5}
+      </td>
+    </tr>
+  </table>
+
+  <input type="submit"/>
+</form>
+"""
+
+class Index(webapp2.RequestHandler):
+    def get(self):
+        #header = "<h1>Signup</h1>"
+        signup = """
+        <form action = "/signup" method="post">
+
+            <label>
+                Username
+                <input type="text" name="username"/>
+            </label>
+
+            <br>
+
+            <label>
+                Password
+                <input type="password" name="password"/>
+            </label>
+
+            <br>
+
+            <label>
+                Verify Password
+                <input type="password" name="verify"/>
+            </label>
+
+            <br>
+
+            <label>
+                Email (optional)
+                <input type="text" name="email">
+            </label>
+
+            <br>
+
+            <input type="submit"/>
+
+        </form>
+        """
+        # if we have an error, make a <p> to display it
+        #error = self.request.get("error")
+        #error_element = "<p class='error'>" + error + "</p>" if error else ""
+
+        #combine all the pieces to build the content of our response
+        content = page_header + title + signup + page_footer
+        #content = page_header + main_content + page_footer
+        self.response.write(content)
+
+class Signup(webapp2.RequestHandler):
     def post(self):
-        # look inside the request to figure out what the user typed
         have_error = False
-        username = self.request.get('username')
-        password = self.request.get('password')
-        verify = self.request.get('verify')
-        email = self.request.get('email')
+        username = self.request.get("username")
+        password = self.request.get("password")
+        verify = self.request.get("verify")
+        email = self.request.get("email")
 
+        error_element = ""
 
         if not valid_username(username):
-            error = "That's not a valid username."
+            error_element = error_element + "&error_username= That is not a valid username."
             have_error = True
-            self.redirect("/?error=" (error))
-
+            #error = "That's not a valid username."
+            #self.redirect("/?error=" + "That's not a valid username.")
         if not valid_password(password):
-            error = "That wasn't a valid password."
-            have_error = True
-            self.redirect("/?error=" (error))
-
+            error_element = error_element + "&error_password= That is not a valid password."
+            have_error=True
+            #error = "That wasn't a valid password."
+            #self.redirect("/?error=" + error)
         elif password != verify:
-            error = "Your passwords didn't match."
-            have_error = True
-            self.redirect("/?error=" (error))
-
+            error_element = error_element + "&error_verify= Your passwords did not match."
+            have_error=True
+            #error = "Your passwords didn't match."
+            #self.redirect("/?error=" + error)
         if not valid_email(email):
-            error = "That's not a valid email."
-            have_error = True
-            self.redirect("/?error=" (error))
-
+            error_element = error_element + "&error_email= That is not a valid email."
+            have_error=True
+            #error = "That's not a valid email."
+            #self.redirect("/?error=" + error)
+        if have_error:
+            self.redirect('/errors?username=' + username + '&email=' + email + error_element)
         else:
             self.redirect('/welcome?username=' + username)
 
+class errors(webapp2.RequestHandler):
+    def get(self):
+        username = self.request.get("username")
+        email = self.request.get("email")
+        error_username = self.request.get("error_username")
+        error_password = self.request.get("error_password")
+        error_verify = self.request.get("error_verify")
+        error_email = self.request.get("error_email")
 
+        error_refresh = page_main.format(username,email,error_username,error_password,error_verify,error_email)
+        self.response.write(page_header + error_refresh + page_footer)
 
 class Welcome (webapp2.RequestHandler):
-    """ Handles requests coming in to '/welcome'
-    """
     def get(self):
-        #look inside the request to fine the username
         username = self.request.get('username')
-
-        # build response content
-        welcome_message: "Welcome, {0}!".format(username)
-        content = page_header + welcome_message + page_footer
-
+        welcome_message = (page_header + "Welcome, " + username + "!" + page_footer)
         if valid_username(username):
-            self.response.write(content)
+            self.response.write(welcome_message)
         else:
             self.redirect('/signup')
 
 app = webapp2.WSGIApplication([
-    ('/', Index),
+    ('/',Index),
     ('/signup', Signup),
-    ('/welcome', Welcome)
-], debug=True)
+    ('/errors', errors),
+    ('/welcome', Welcome)], debug=True)
