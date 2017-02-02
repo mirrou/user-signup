@@ -92,7 +92,6 @@ page_main = """
 
 class Index(webapp2.RequestHandler):
     def get(self):
-        #header = "<h1>Signup</h1>"
         signup = """
         <form action = "/signup" method="post">
 
@@ -128,13 +127,10 @@ class Index(webapp2.RequestHandler):
 
         </form>
         """
-        # if we have an error, make a <p> to display it
-        #error = self.request.get("error")
-        #error_element = "<p class='error'>" + error + "</p>" if error else ""
+
 
         #combine all the pieces to build the content of our response
         content = page_header + title + signup + page_footer
-        #content = page_header + main_content + page_footer
         self.response.write(content)
 
 class Signup(webapp2.RequestHandler):
@@ -150,23 +146,19 @@ class Signup(webapp2.RequestHandler):
         if not valid_username(username):
             error_element = error_element + "&error_username= That is not a valid username."
             have_error = True
-            #error = "That's not a valid username."
-            #self.redirect("/?error=" + "That's not a valid username.")
+
         if not valid_password(password):
             error_element = error_element + "&error_password= That is not a valid password."
             have_error=True
-            #error = "That wasn't a valid password."
-            #self.redirect("/?error=" + error)
+
         elif password != verify:
             error_element = error_element + "&error_verify= Your passwords did not match."
             have_error=True
-            #error = "Your passwords didn't match."
-            #self.redirect("/?error=" + error)
+
         if not valid_email(email):
             error_element = error_element + "&error_email= That is not a valid email."
             have_error=True
-            #error = "That's not a valid email."
-            #self.redirect("/?error=" + error)
+
         if have_error:
             self.redirect('/errors?username=' + username + '&email=' + email + error_element)
         else:
